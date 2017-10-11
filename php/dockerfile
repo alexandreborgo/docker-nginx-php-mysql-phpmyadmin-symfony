@@ -1,0 +1,7 @@
+FROM php:7-fpm
+
+MAINTAINER Alexandre Borgo <alexandre.borgo@free.fr>
+
+RUN usermod -u 1000 www-data
+
+EXPOSE 9000
