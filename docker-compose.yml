@@ -27,7 +27,7 @@ services:
     links:
       - db:mysqldb
     volumes:
-      - ./src:/var/www/html
+      - ./symfony:/var/www/html
       - ./logs/symfony:/var/www/symfony/app/logs
   nginx:
     build: nginx
