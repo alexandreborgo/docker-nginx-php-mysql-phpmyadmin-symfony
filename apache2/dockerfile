@@ -1,0 +1,13 @@
+FROM debian:jessie
+
+MAINTAINER Alexandre Borgo <alexandre.borgo@free.fr>
+
+RUN apt-get update && apt-get install -y apache2
+RUN a2enmod proxy_fcgi
+
+ADD 000-default.conf /etc/apache2/sites-available
+
+WORKDIR /var/www/html
+EXPOSE 80 443
+
+CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]

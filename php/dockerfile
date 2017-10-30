@@ -4,4 +4,5 @@ MAINTAINER Alexandre Borgo <alexandre.borgo@free.fr>
 
 RUN usermod -u 1000 www-data
 
+WORKDIR /var/www/html
 EXPOSE 9000

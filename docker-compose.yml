@@ -27,15 +27,17 @@ services:
     links:
       - db:mysqldb
     volumes:
-      - ./symfony:/var/www/html
-      - ./logs/symfony:/var/www/symfony/app/logs
-  nginx:
-    build: nginx
-    ports: 
+      - ./symfony:/var/www/html/symfony
+      - ./logs/symfony:/var/www/html/symfony/app/logs
+  apache2:
+    build: apache2
+    ports:
       - 80:80
-    links: 
+    environment:
+      FPM_HOST: php:9000
+    links:
       - php
     volumes_from:
       - php
     volumes:
-      - ./logs/nginx:/var/log/nginx
+      - ./logs/apache2:/var/log/apache2
