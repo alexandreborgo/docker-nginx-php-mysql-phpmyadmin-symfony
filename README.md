@@ -1,6 +1,6 @@
-# docker-nginx-php-mysql-phpmyadmin-symfony
+# docker-webserver
 
-A docker multicontainer (with docker-compose) NGINX, PHP, MySQL, phpMyAdmin and Symfony ready to work.
+A docker multicontainer (with docker-compose) Apache2, PHP, MySQL, phpMyAdmin and Symfony ready to work.
 
 ## Installation 
 Launch the symfony script (symfony.sh). 
