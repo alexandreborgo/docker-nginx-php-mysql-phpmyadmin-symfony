@@ -31,10 +31,10 @@ services:
       - ./logs/symfony:/var/www/html/symfony/app/logs
   apache2:
     build: apache2
+    env_file:
+      - .env
     ports:
       - 80:80
-    environment:
-      FPM_HOST: php:9000
     links:
       - php
     volumes_from:
