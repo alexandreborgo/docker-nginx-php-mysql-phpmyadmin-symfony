@@ -4,6 +4,7 @@ MAINTAINER Alexandre Borgo <alexandre.borgo@free.fr>
 
 RUN apt-get update && apt-get install -y apache2
 RUN a2enmod proxy_fcgi
+RUN a2enmod rewrite
 
 ADD 000-default.conf /etc/apache2/sites-available
 
