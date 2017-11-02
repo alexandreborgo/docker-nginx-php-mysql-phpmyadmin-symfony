@@ -22,13 +22,15 @@ services:
       - db:mysqldb
   php:
     build: php
+    env_file:
+      - .env
     ports:
       - 9000:9000
     links:
       - db:mysqldb
     volumes:
-      - ./symfony:/var/www/html/symfony
-      - ./logs/symfony:/var/www/html/symfony/app/logs
+      - ./src:/var/www/html/${project}
+      - ./logs/symfony:/var/www/html/${project}/app/logs
   apache2:
     build: apache2
     env_file:

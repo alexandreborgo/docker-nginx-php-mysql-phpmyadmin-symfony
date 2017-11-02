@@ -1,23 +1,56 @@
+
 # docker-webserver
 
 A docker multicontainer (with docker-compose) Apache2, PHP, MySQL, phpMyAdmin and Symfony ready to work.
 
-## Installation 
-Launch the symfony script (symfony.sh). 
+## Installation
+If you want Symfony you can launch the symfony script (symfony.sh).
 
 It will download last version of Symfony.
 ```bash
-bash install.sh
+bash symfony.sh
 ```
+Then you need to complete the environment file (.env) following your need.
 
-Then you need to build all container with this command :
+Exemple :
+```bash
+#MySQL
+MYSQL_ROOT_PASSWORD=root
+MYSQL_DATABASE=db
+MYSQL_USER=user
+MYSQL_PASSWORD=password
+
+#apache2
+project=symfony # the name of the project will be the name of folder
+DocumentRoot=/var/www/html/symfony/web # DocumentRoot html by default or project_name/web for Symfony project
+ServerName=mywebsite.fr
+ServerAlias=www.mywebsite.fr
+ServerAdmin=admin@mywebsite.fr
+ssl_cert_file=/etc/apache2/ssl_certs/domain.crt # certificate file
+ssl_key_file=/etc/apache2/ssl_certs/domain_private.key # private key file
+ssl_interim_file=/etc/apache2/ssl_certs/domain_interim.crt # intermediate certificate file
+```
+> **Note:** If you want to use only https you will need to uncomment the "Redirect permanent" line in /etc/apache2/sites-availables/000-default.conf
+> ```bash
+> <VirtualHost *:80>
+>     Redirect permanent / https://${ServerAlias}/
+> (...)
+> ```
+
+
+
+
+Finally you need to build all container with this command :
 ```bash
 docker-compose build
 ```
-	
+
 ## Use
-Then you can start the system with docker-compose :
+You can start the system with docker-compose :
 ```bash
 docker-compose up
 ```
-
+Use the option -d to run containers in the background.
+```bash
+docker-compose up -d
+```
