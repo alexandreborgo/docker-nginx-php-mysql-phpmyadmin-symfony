@@ -9,6 +9,11 @@ RUN a2enmod ssl
 
 ADD 000-default.conf /etc/apache2/sites-available
 
+RUN mkdir /etc/apache2/ssl-certs
+ADD ${ssl_cert_file} /etc/apache2/ssl-certs/${ssl_cert_file}
+ADD ${ssl_key_file} /etc/apache2/ssl-certs/${ssl_key_file}
+ADD ${ssl_interim_file} /etc/apache2/ssl-certs/${ssl_interim_file}
+
 WORKDIR /var/www/html
 EXPOSE 80 443
 
