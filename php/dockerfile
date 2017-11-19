@@ -1,6 +1,10 @@
-FROM php:7-fpm
+FROM php:7.1.11-fpm
 
 MAINTAINER Alexandre Borgo <alexandre.borgo@free.fr>
+
+RUN apt-get update
+
+RUN docker-php-ext-install pdo_mysql
 
 RUN usermod -u 1000 www-data
 
