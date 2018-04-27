@@ -1,7 +1,8 @@
-# test
 version: '2'
+
 services:
   mysql:
+    container_name: mysql
     image: mysql:5.7
     env_file:
       - .env
@@ -13,16 +14,20 @@ services:
       MYSQL_USER: "${MYSQL_USER}"
       MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
     volumes:
-      - ./data/db:/var/lib/mysql
-    container_name: mysql
+      - ./volumes/data/db:/var/lib/mysql
+
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin:4.7
-    ports:
-      - 8080:80
-    links:
-      - mysql:mysqldb
     container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin:4.7
+    links:
+      - mysql:db
+    environment:
+      - VIRTUAL_HOST=phpmyadmin.${ServerName}
+      - LETSENCRYPT_HOST=phpmyadmin.${ServerName}
+      - LETSENCRYPT_EMAIL=${ServerAdmin}
+
   php:
+    container_name: php
     build: php
     env_file:
       - .env
@@ -31,20 +36,64 @@ services:
     links:
       - mysql:mysqldb
     volumes:
-      - ./src:/var/www/html/${project}
-      - ./logs/symfony:/var/www/html/${project}/app/logs
-    container_name: php
+      - ./${project}:/var/www/html/${project}
+      - ./volumes/logs/symfony:/var/www/html/${project}/app/logs
+  
   apache2:
+    container_name: apache2
     build: apache2
     env_file:
       - .env
-    ports:
-      - 80:80
-      - 443:443
     links:
       - php
     volumes_from:
       - php
     volumes:
-      - ./logs/apache2:/var/log/apache2
-    container_name: apache2
+      - ./volumes/logs/apache2:/var/log/apache2
+    environment:
+      - VIRTUAL_HOST=${ServerName},${ServerAlias}
+      - LETSENCRYPT_HOST=${ServerName},${ServerAlias}
+      - LETSENCRYPT_EMAIL=${ServerAdmin}
+
+  nextcloud:
+    container_name: nextcloud
+    image: nextcloud:13.0.2-apache
+    env_file:
+      - .env
+    links:
+        - mysql
+    volumes:
+      - ./volumes/nextcloud:/var/www/html
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_HOST=${MYSQL_HOST}
+      - NEXTCLOUD_ADMIN_USER=${NEXTCLOUD_ADMIN_USER}
+      - NEXTCLOUD_ADMIN_PASSWORD=${NEXTCLOUD_ADMIN_PASSWORD}
+      - VIRTUAL_HOST=cloud.${ServerName}
+      - LETSENCRYPT_HOST=cloud.${ServerName}
+      - LETSENCRYPT_EMAIL=${ServerAdmin}
+
+  nginx-proxy:
+    container_name: nginx-proxy
+    build: nginx-proxy
+    env_file:
+      - .env
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./volumes/nginx-proxy/vhost:/etc/nginx/vhost.d
+      - ./volumes/nginx-proxy/html:/usr/share/nginx/html
+      - ./volumes/nginx-proxy/certs:/etc/nginx/certs
+      - ./volumes/nginx-proxy/cache:/data/nginx/cache
+
+  letsencrypt-nginx-proxy-companion:
+    container_name: letsencrypt
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    volumes_from:
+      - nginx-proxy

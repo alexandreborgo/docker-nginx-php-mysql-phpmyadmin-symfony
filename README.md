@@ -1,90 +1,57 @@
 
-# docker-webserver
 
-A docker multicontainer (with docker-compose) Apache2, PHP, MySQL, phpMyAdmin and Symfony ready to work.
+# docker-webserver
+A Docker multicontainer (with docker-compose file) to set up a personnal web environment easly with Nginx, Apache2, MySQL, PHP, phpMyAdmin and Nextcloud.
+
+## How does it work
+Nginx is used as a reverse proxy for containers. I use  [jwilder](https://github.com/jwilder)/[nginx-proxy](https://github.com/jwilder/nginx-proxy) which automates the configuration of the proxy.
+Working with [nginx-proxy](https://github.com/jwilder/nginx-proxy) I'm using [JrCs](https://github.com/JrCs)/[docker-letsencrypt-nginx-proxy-companion](https://github.com/JrCs/docker-letsencrypt-nginx-proxy-companion). It allows the creation/renewal of [Let's Encrypt](https://letsencrypt.org/) certificates automatically.
+
+Go see their GitHub page to learn more about these two awesome tools!
+
+Then I use Apache2 linked with PHP-FPM (7.1), a MySQL (5.7) server and a phpMyAdmin.
+
+I also add a [Nextcloud](https://nextcloud.com/) server (13) which is an open-source file hosting service.
+
+Everything inside Docker containers of course!
 
 ## Installation
-If you want Symfony you can launch the symfony script (symfony.sh).
+First download all the files and put them on your server (as the location is not a matter, you can place the files wherever you want).
 
-It will download last version of Symfony.
-```bash
-bash symfony.sh
-```
+Create a new folder and put the sources of your website inside it.
+
 Then you need to complete the environment file (.env) following your need.
 
-Exemple :
 ```bash
-#MySQL
-MYSQL_ROOT_PASSWORD=root
-MYSQL_DATABASE=db
-MYSQL_USER=user
-MYSQL_PASSWORD=password
+MYSQL_ROOT_PASSWORD=(root password)
+MYSQL_DATABASE=(database name)
+MYSQL_USER=(username)
+MYSQL_PASSWORD=(user password)
+MYSQL_HOST=(the name of the mysql container, default: mysql)
+
+#Nextcloud
+NEXTCLOUD_ADMIN_USER=(nextcloud admin username)
+NEXTCLOUD_ADMIN_PASSWORD=(nextcloud admin password)
 
 #apache2
-project=symfony # the name of the project will be the name of folder
-DocumentRoot=/var/www/html/symfony/web # DocumentRoot html by default or project_name/web for Symfony project
-ServerName=mywebsite.fr
-ServerAlias=www.mywebsite.fr
-ServerAdmin=admin@mywebsite.fr
-ssl_cert_file=/etc/apache2/ssl-certs/domain.crt # certificate file
-ssl_key_file=/etc/apache2/ssl-certs/domain_private.key # private key file
-ssl_interim_file=/etc/apache2/ssl-certs/domain_interim.crt # intermediate certificate file
-```
-
-All code of the website must be placed in the project folder.
-
-All SSL certificate files must be placed in the docker-webserver/apache2 folder.
-
-
-> **Note :** If you want to use only HTTPS you will need to uncomment the "Redirect permanent" line in /etc/apache2/sites-availables/000-default.conf :
-> ```bash
-> <VirtualHost *:80>
->     Redirect permanent / https://${ServerAlias}/
-> (...)
-> ```
-
-> **Note :** If you do not want to use HTTPS you will need to comment or delete the the following lines in /etc/apache2/sites-availables/000-default.conf :
-> ```bash
-> <VirtualHost *:443>
->
->	  <FilesMatch \.php$>
->		 SetHandler "proxy:fcgi://php:9000"
->	  </FilesMatch>
->
->	  ServerName ${ServerName}
->	  ServerAlias ${ServerAlias}
->	  ServerAdmin ${ServerAdmin}
->	  DocumentRoot ${DocumentRoot}
->
->	  SSLEngine on
->   SSLCertificateFile /etc/apache2/ssl-certs/${ssl_cert_file}
->   SSLCertificateKeyFile /etc/apache2/ssl-certs/${ssl_key_file}
->   SSLCACertificateFile /etc/apache2/ssl-certs/${ssl_interim_file}
->
->	  <Directory ${DocumentRoot}>
->		 AllowOverride All
->		 Order Allow,Deny
->		 Allow from All
->		 Require all granted
->   </Directory>
->
->	  ErrorLog ${APACHE_LOG_DIR}/error.log
->	  CustomLog ${APACHE_LOG_DIR}/access.log combined
->
-> </VirtualHost>
-> ```
-
-Finally you need to build all container with this command :
-```bash
-docker-compose build
+project=(the name of the directory containing the sources of your website)
+DocumentRoot=(the web root of your website)
+ServerName=(domain name)
+ServerAlias=(alias)
+ServerAdmin=(admin email)
 ```
 
 ## Use
-You can start the system with docker-compose :
+Build:
+```bash
+docker-compose build
+```
+Start:
 ```bash
 docker-compose up
 ```
-Use the option -d to run containers in the background.
+Start in background:
 ```bash
 docker-compose up -d
 ```
+

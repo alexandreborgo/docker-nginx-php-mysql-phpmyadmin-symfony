@@ -5,16 +5,11 @@ MAINTAINER Alexandre Borgo <alexandre.borgo@free.fr>
 RUN apt-get update && apt-get install -y apache2
 RUN a2enmod proxy_fcgi
 RUN a2enmod rewrite
-RUN a2enmod ssl
+RUN a2enmod headers
 
 ADD 000-default.conf /etc/apache2/sites-available
 
-RUN mkdir /etc/apache2/ssl-certs
-ADD ${ssl_cert_file} /etc/apache2/ssl-certs/${ssl_cert_file}
-ADD ${ssl_key_file} /etc/apache2/ssl-certs/${ssl_key_file}
-ADD ${ssl_interim_file} /etc/apache2/ssl-certs/${ssl_interim_file}
-
 WORKDIR /var/www/html
-EXPOSE 80 443
+EXPOSE 80
 
 CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
